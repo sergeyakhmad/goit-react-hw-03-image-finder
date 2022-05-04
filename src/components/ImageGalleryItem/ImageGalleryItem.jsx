@@ -6,10 +6,12 @@ export default function ImageGalleryItem({
   alt,
   openModal,
   largeImageURL,
+  onClick,
 }) {
   return (
     <li className={s.imageGalleryItem} onClick={openModal}>
       <img
+        onClick={onClick}
         className={s.imageGalleryItem__image}
         src={src}
         alt={alt}

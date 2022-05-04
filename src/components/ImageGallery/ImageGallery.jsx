@@ -15,41 +15,35 @@ export default class ImageGallery extends Component {
     largeUrl: '',
     showModal: false,
     status: 'idle',
-    // loading: false,
   };
 
-  componentDidUpdate(prevProps, prevState) {
+  getSnapshotBeforeUpdate() {
+    return document.body.scrollHeight;
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const { search } = this.props;
     const { page } = this.state;
 
     if (prevProps.search !== search) {
-      this.setState({ status: 'pending' });
-      this.updateState();
+      this.setState({ images: [], page: 1 });
+    }
+
+    if (
+      prevState.page !== page ||
+      (page === 1 && prevProps.search !== search)
+    ) {
       this.requestImage(search, page);
     }
 
-    if (prevState.page !== page) {
-      this.requestImage(search, page);
-    }
+    window.scrollTo({
+      top: snapshot,
+      behavior: 'smooth',
+    });
   }
 
-  updateState = () => {
-    this.setState({ images: [], page: 1 });
-  };
-
-  // requestImage = (search, page) => {
-  //   imageApi
-  //     .fetchImage(search, page)
-  //     .then(({ hits }) =>
-  //       this.setState(prevState => ({
-  //         images: [...prevState.images, ...hits],
-  //         status: 'resolved',
-  //       }))
-  //     )
-  //     .catch(error => this.setState({ error, status: 'rejected' }));
-  // };
-
   requestImage = (search, page) => {
+    this.setState({ status: 'pending' });
     imageApi
       .fetchImage(search, page)
       .then(({ hits }) => {
@@ -87,36 +81,37 @@ export default class ImageGallery extends Component {
       return <h2 className={s.title}>Let's find some images</h2>;
     }
 
-    if (status === 'pending') {
-      return <Loader />;
-    }
-
     if (status === 'rejected') {
       return <h2 className={s.title}>{error.message}</h2>;
     }
 
-    if (status === 'resolved') {
-      return (
-        <>
-          {showModal && (
-            <Modal onClose={this.toggleModal}>
-              <img src={largeUrl} alt="" />
-            </Modal>
-          )}
-          <ul className={s.gallery} onClick={this.onClickImg}>
-            {images.map(({ id, webformatURL, largeImageURL, tags }) => (
-              <ImageGalleryItem
-                key={id}
-                src={webformatURL}
-                alt={tags}
-                openModal={this.toggleModal}
-                largeImageURL={largeImageURL}
-              />
-            ))}
-          </ul>
-          {images.length > 0 && <Button onClick={this.loadMore} />}
-        </>
-      );
-    }
+    return (
+      <>
+        {status === 'pending' && <Loader />}
+        {showModal && (
+          <Modal onClose={this.toggleModal}>
+            <img src={largeUrl} alt="" />
+          </Modal>
+        )}
+        <ul className={s.gallery}>
+          {images.map(({ id, webformatURL, largeImageURL, tags }) => (
+            <ImageGalleryItem
+              onClick={this.onClickImg}
+              key={id}
+              src={webformatURL}
+              alt={tags}
+              openModal={this.toggleModal}
+              largeImageURL={largeImageURL}
+            />
+          ))}
+        </ul>
+        {images.length > 0 && <Button onClick={this.loadMore} />}
+      </>
+    );
   }
 }
+
+// window.scrollTo({
+//   top: document.body.clientHeight,
+//   behavior: 'smooth',
+// });
