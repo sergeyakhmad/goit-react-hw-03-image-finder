@@ -69,9 +69,8 @@ export default class ImageGallery extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
-  onClickImg = e => {
-    if (e.target.nodeName !== 'IMG') return;
-    this.setState({ largeUrl: e.target.dataset.url });
+  onClickImg = url => {
+    this.setState({ largeUrl: url });
   };
 
   render() {

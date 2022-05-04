@@ -11,11 +11,10 @@ export default function ImageGalleryItem({
   return (
     <li className={s.imageGalleryItem} onClick={openModal}>
       <img
-        onClick={onClick}
+        onClick={() => onClick(largeImageURL)}
         className={s.imageGalleryItem__image}
         src={src}
         alt={alt}
-        data-url={largeImageURL}
       />
     </li>
   );
